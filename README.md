@@ -43,8 +43,42 @@ pytest -v
 ```
 
 ## Start the report receiver
-```bash
-python receiver.py
-```
-The receiver listens on http://localhost:8000. Each CI run posts its test report
-there, and the receiver saves it as `test-report.json` in the project folder.
+The CI pipeline runs on a GitHub server, so it reaches the receiver on your PC
+through a Cloudflare tunnel.
+
+1. Create a secret token (once):
+   ```bash
+   python -c "import secrets; open('.report_token','w').write(secrets.token_hex(24))"
+   ```
+2. Start the receiver (keep this terminal open):
+   ```bash
+   python receiver.py
+   ```
+   It listens on http://localhost:8000.
+3. In a second terminal, start the tunnel (install once with
+   `winget install Cloudflare.cloudflared`):
+   ```bash
+   cloudflared tunnel --url http://localhost:8000
+   ```
+   Copy the `https://....trycloudflare.com` link it prints.
+4. Save the link and token as GitHub repository secrets:
+   ```bash
+   gh secret set RECEIVER_URL --body "https://....trycloudflare.com"
+   gh secret set REPORT_TOKEN < .report_token
+   ```
+   The tunnel link changes each time cloudflared restarts, so repeat the
+   `RECEIVER_URL` command after a restart.
+
+After every push, the pipeline sends its report (for passing and failing runs)
+and the receiver saves it as `test-report.json`. A copy of each run is also
+kept in `reports/<run_id>-<passed|failed>.json`.
+
+## How the pipeline works (`.github/workflows/ci.yml`)
+1. Runs on every push and checks out the pushed commit.
+2. Installs Python and the requirements.
+3. Runs `pytest`. If any test fails, this step fails and the pipeline fails.
+4. Always (pass or fail): `build_report.py` builds `report.json` with the
+   repository, branch, commit SHA, run id, timestamp, each test's result and
+   failure message, and total / passed / failed counts with the overall status.
+5. Always: sends the report to `RECEIVER_URL` with the `X-Report-Token` header,
+   and uploads it as a run artifact.

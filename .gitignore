@@ -5,3 +5,7 @@ __pycache__/
 .claude/
 submissions.json
 test-report.json
+reports/
+report.json
+junit.xml
+.report_token

@@ -4,15 +4,18 @@ name: CI
 on:
   push:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the pushed revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -22,4 +25,34 @@ jobs:
       # pytest exits with a non-zero code if any test fails,
       # which makes this step (and the pipeline) fail.
       - name: Run tests
-        run: pytest -v
+        run: pytest -v --junitxml=junit.xml
+
+      # The steps below use "if: always()" so they also run when tests fail.
+      - name: Build test report
+        if: always()
+        run: |
+          python build_report.py junit.xml report.json
+          cat report.json
+
+      - name: Send report to local receiver
+        if: always()
+        env:
+          RECEIVER_URL: ${{ secrets.RECEIVER_URL }}
+          REPORT_TOKEN: ${{ secrets.REPORT_TOKEN }}
+        run: |
+          if [ -z "$RECEIVER_URL" ]; then
+            echo "::warning::RECEIVER_URL secret is not set - report not sent."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30 \
+            -X POST "$RECEIVER_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Report-Token: $REPORT_TOKEN" \
+            --data-binary @report.json
+
+      - name: Upload report as artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-report
+          path: report.json
