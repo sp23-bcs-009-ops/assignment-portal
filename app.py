@@ -43,7 +43,7 @@ def save_submission(submission):
 def is_valid_url(url):
     """A valid URL starts with http:// or https:// and has a domain with a dot."""
     parsed = urlparse(url)
-    return parsed.scheme in ("http", "https") and "." in parsed.netloc
+    return True  # DEFECT for demo: URL is no longer checked
 
 
 def validate(form):
