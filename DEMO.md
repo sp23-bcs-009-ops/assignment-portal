@@ -29,9 +29,26 @@ assert 302 == 400
 
 Commit `f97d622` restored the URL check, and all tests passed again.
 
+## Bonus evidence (conditional deploy + email)
+
+Pages URL: https://sp23-bcs-009-ops.github.io/assignment-portal/
+(the page footer shows the commit it was deployed from)
+
+| # | Step | Commit | Pipeline run | test job | deploy job | Pages shows | Email |
+|---|------|--------|--------------|----------|------------|-------------|-------|
+| 4 | Pages added (passing) | `3048e2f` | [43740049655](https://github.com/sp23-bcs-009-ops/assignment-portal/actions/runs/43740049655) | ✅ | ✅ deployed | `3048e2f` | (not configured yet) |
+| 5 | Defect introduced | `7830d37` | [43743482829](https://github.com/sp23-bcs-009-ops/assignment-portal/actions/runs/43743482829) | ❌ | ⏭️ skipped | `3048e2f` (unchanged) | `[CI FAILED] ... @ 7830d37 - 2/3 passed` |
+| 6 | Defect fixed | `68edd99` | [43743556312](https://github.com/sp23-bcs-009-ops/assignment-portal/actions/runs/43743556312) | ✅ | ✅ deployed | `68edd99` | `[CI PASSED] ... @ 68edd99 - 3/3 passed` |
+
+Received reports for these runs: [run5-failed.json](evidence/run5-failed.json),
+[run6-fixed-passed.json](evidence/run6-fixed-passed.json).
+
 ## Receiver console output
 ```
 [22:04:37] Report saved: PASSED | commit b0ec081 | run 43739314572 | 3/3 passed, 0 failed
 [22:09:44] Report saved: FAILED | commit a703e76 | run 43739806907 | 2/3 passed, 1 failed
 [22:10:18] Report saved: PASSED | commit f97d622 | run 43739860368 | 3/3 passed, 0 failed
+[22:12:24] Report saved: PASSED | commit 3048e2f | run 43740049655 | 3/3 passed, 0 failed
+[22:49:01] Report saved: FAILED | commit 7830d37 | run 43743482829 | 2/3 passed, 1 failed
+[22:49:50] Report saved: PASSED | commit 68edd99 | run 43743556312 | 3/3 passed, 0 failed
 ```
