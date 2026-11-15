@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment Submission Portal (Demo)</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #222; }
+    .box { max-width: 800px; margin: 0 auto 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    h1 { margin-top: 0; color: #1a4d8f; }
+    .note { background: #fff7e0; padding: 8px 10px; border-radius: 4px; font-size: 14px; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 10px 20px; background: #1a4d8f; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+    button.secondary { background: #888; margin-left: 8px; }
+    .error { background: #fde8e8; color: #a30000; padding: 10px; border-radius: 4px; margin-top: 12px; }
+    .success { background: #e6f6ea; color: #116b2b; padding: 10px; border-radius: 4px; margin-top: 12px; }
+    .hidden { display: none; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; word-break: break-all; }
+    th { background: #f0f3f8; }
+    footer { text-align: center; font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Assignment Submission Portal</h1>
+    <p class="note">Static demo on GitHub Pages. Submissions are saved in this browser only (localStorage).
+      The full Flask version is in the repository.</p>
+
+    <div id="errors" class="error hidden"></div>
+    <div id="success" class="success hidden">Submission saved successfully.</div>
+
+    <form id="form" novalidate>
+      <label for="name">Name</label>
+      <input id="name" name="name">
+
+      <label for="reg_no">Registration number</label>
+      <input id="reg_no" name="reg_no" placeholder="FA22-BCS-001">
+
+      <label for="title">Assignment title</label>
+      <input id="title" name="title">
+
+      <label for="url">Submission URL</label>
+      <input id="url" name="url" placeholder="https://drive.google.com/...">
+
+      <button type="submit">Submit</button>
+      <button type="button" class="secondary" id="clear">Clear all</button>
+    </form>
+  </div>
+
+  <div class="box">
+    <h2>Saved Submissions (<span id="count">0</span>)</h2>
+    <div id="list"></div>
+  </div>
+
+  <footer>
+    Deployed commit <code>__COMMIT__</code> &middot;
+    <a href="https://github.com/sp23-bcs-009-ops/assignment-portal">GitHub repository</a>
+  </footer>
+
+  <script>
+    // Same rules as validate() in app.py
+    const FIELDS = { name: "Name", reg_no: "Registration number", title: "Assignment title", url: "Submission URL" };
+    const KEY = "submissions";
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+    }
+    function store(list) {
+      try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+    }
+    function isValidUrl(value) {
+      try {
+        const u = new URL(value);
+        return (u.protocol === "http:" || u.protocol === "https:") && u.hostname.includes(".");
+      } catch (e) { return false; }
+    }
+    function validate(data) {
+      const errors = [];
+      for (const [field, label] of Object.entries(FIELDS)) {
+        if (!data[field]) errors.push(label + " is required.");
+      }
+      if (data.url && !isValidUrl(data.url)) {
+        errors.push("Submission URL is invalid. Use a full link like https://example.com/file.");
+      }
+      return errors;
+    }
+    function render() {
+      const list = load();
+      document.getElementById("count").textContent = list.length;
+      const box = document.getElementById("list");
+      box.innerHTML = "";
+      if (!list.length) { box.innerHTML = "<p>No submissions yet.</p>"; return; }
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      const table = document.createElement("table");
+      table.innerHTML = "<tr><th>Name</th><th>Reg No</th><th>Title</th><th>URL</th><th>Time</th></tr>";
+      for (const s of list) {
+        const tr = document.createElement("tr");
+        for (const key of ["name", "reg_no", "title", "url", "submitted_at"]) {
+          const td = document.createElement("td");
+          if (key === "url") {
+            const a = document.createElement("a");
+            a.href = s.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = s.url;
+            td.appendChild(a);
+          } else {
+            td.textContent = s[key];
+          }
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      wrap.appendChild(table);
+      box.appendChild(wrap);
+    }
+
+    document.getElementById("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = {};
+      for (const field of Object.keys(FIELDS)) data[field] = document.getElementById(field).value.trim();
+      const errors = validate(data);
+      const errBox = document.getElementById("errors");
+      const okBox = document.getElementById("success");
+      if (errors.length) {
+        errBox.innerHTML = "<ul>" + errors.map(m => "<li></li>").join("") + "</ul>";
+        errBox.querySelectorAll("li").forEach((li, i) => li.textContent = errors[i]);
+        errBox.classList.remove("hidden");
+        okBox.classList.add("hidden");
+        return;
+      }
+      data.submitted_at = new Date().toISOString().slice(0, 16).replace("T", " ");
+      const list = load(); list.push(data); store(list);
+      e.target.reset();
+      errBox.classList.add("hidden");
+      okBox.classList.remove("hidden");
+      render();
+    });
+
+    document.getElementById("clear").addEventListener("click", () => { store([]); render(); });
+    render();
+  </script>
+</body>
+</html>

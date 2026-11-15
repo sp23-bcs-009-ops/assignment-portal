@@ -16,6 +16,10 @@ to a local receiver that saves it as `test-report.json`.
 | `templates/index.html` | Form and submissions list page |
 | `test_app.py` | Automated tests (pytest) |
 | `receiver.py` | Local HTTP server that receives the CI test report |
+| `build_report.py` | Builds the JSON test report in CI |
+| `send_email.py` | Emails the test report (bonus) |
+| `site/index.html` | Static demo published to GitHub Pages (bonus) |
+| `DEMO.md`, `evidence/` | Pass / fail / fix demonstration evidence |
 | `.github/workflows/ci.yml` | CI pipeline (GitHub Actions) |
 | `requirements.txt` | Python packages |
 
@@ -81,4 +85,29 @@ kept in `reports/<run_id>-<passed|failed>.json`.
    repository, branch, commit SHA, run id, timestamp, each test's result and
    failure message, and total / passed / failed counts with the overall status.
 5. Always: sends the report to `RECEIVER_URL` with the `X-Report-Token` header,
-   and uploads it as a run artifact.
+   emails it, and uploads it as a run artifact.
+6. Only if all tests passed and the push was to `main`: the `deploy` job
+   publishes the static demo in `site/` to GitHub Pages.
+
+## Bonus: GitHub Pages (conditional deployment)
+Live demo: https://sp23-bcs-009-ops.github.io/assignment-portal/
+
+`site/index.html` is a static version of the portal (same validation rules,
+submissions stored in the browser). The `deploy` job has `needs: test`, so a
+failing run skips deployment and the previously published version stays live.
+The page footer shows the commit it was deployed from.
+
+## Bonus: Email report
+`send_email.py` emails the report after every run (passed or failed), with the
+commit, overall result, counts, each test's result, and `test-report.json`
+attached. Credentials are never in the code:
+
+```bash
+gh variable set EMAIL_TO --body "someone@example.com"   # recipient (configurable)
+gh secret set SMTP_USERNAME                             # sender Gmail address
+gh secret set SMTP_PASSWORD                             # Gmail App Password
+```
+For Gmail, create an App Password at https://myaccount.google.com/apppasswords
+(2-Step Verification must be on). Other providers: also set the `SMTP_SERVER`
+and `SMTP_PORT` variables (SSL). If the settings are missing, the step is skipped
+with a warning.
