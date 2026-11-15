@@ -1,0 +1,25 @@
+name: CI
+
+# Run on every push, to any branch
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pushed revision
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # pytest exits with a non-zero code if any test fails,
+      # which makes this step (and the pipeline) fail.
+      - name: Run tests
+        run: pytest -v
