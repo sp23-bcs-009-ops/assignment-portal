@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment Submission Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #222; }
+    .box { max-width: 800px; margin: 0 auto 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    h1 { margin-top: 0; color: #1a4d8f; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 10px 20px; background: #1a4d8f; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+    .error { background: #fde8e8; color: #a30000; padding: 10px; border-radius: 4px; }
+    .success { background: #e6f6ea; color: #116b2b; padding: 10px; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; word-break: break-all; }
+    th { background: #f0f3f8; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Assignment Submission Portal</h1>
+
+    {% if errors %}
+      <div class="error" id="errors">
+        <ul>
+          {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% elif saved %}
+      <div class="success">Submission saved successfully.</div>
+    {% endif %}
+
+    <form method="post">
+      <label for="name">Name</label>
+      <input id="name" name="name" value="{{ form.get('name', '') }}">
+
+      <label for="reg_no">Registration number</label>
+      <input id="reg_no" name="reg_no" value="{{ form.get('reg_no', '') }}" placeholder="FA22-BCS-001">
+
+      <label for="title">Assignment title</label>
+      <input id="title" name="title" value="{{ form.get('title', '') }}">
+
+      <label for="url">Submission URL</label>
+      <input id="url" name="url" value="{{ form.get('url', '') }}" placeholder="https://drive.google.com/...">
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div class="box">
+    <h2>Saved Submissions ({{ submissions|length }})</h2>
+    {% if submissions %}
+      <table id="submissions">
+        <tr><th>Name</th><th>Reg No</th><th>Title</th><th>URL</th><th>Time</th></tr>
+        {% for s in submissions %}
+          <tr>
+            <td>{{ s.name }}</td>
+            <td>{{ s.reg_no }}</td>
+            <td>{{ s.title }}</td>
+            <td><a href="{{ s.url }}" target="_blank">{{ s.url }}</a></td>
+            <td>{{ s.submitted_at }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p>No submissions yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
