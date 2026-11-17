@@ -180,7 +180,7 @@
           <div class="field">
             <span class="step mono">02</span>
             <label for="reg_no">Registration number</label>
-            <input id="reg_no" name="reg_no" class="mono" value="{{ form.get('reg_no', '') }}" placeholder="FA22-BCS-001">
+            <input id="reg_no" name="reg_no" class="mono" value="{{ form.get('reg_no', '') }}" placeholder="SP23-BCS-009">
             <span class="tip"></span>
           </div>
 
@@ -215,7 +215,7 @@
     (function () {
       const checks = {
         name: v => v ? "" : "Required",
-        reg_no: v => v ? "" : "Required",
+        reg_no: v => !v ? "Required" : (/^(FA|SP)\d{2}-[A-Z]{3}-\d{3}$/i.test(v) ? "" : "Use the format SP23-BCS-009"),
         title: v => v ? "" : "Required",
         url: v => {
           if (!v) return "Required";

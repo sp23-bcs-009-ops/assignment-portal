@@ -195,10 +195,16 @@
         return (u.protocol === "http:" || u.protocol === "https:") && u.hostname.includes(".");
       } catch (e) { return false; }
     }
+    function isValidRegNo(value) {
+      return /^(FA|SP)\d{2}-[A-Z]{3}-\d{3}$/i.test(value);
+    }
     function validate(data) {
       const errors = [];
       for (const [field, label] of Object.entries(FIELDS)) {
         if (!data[field]) errors.push(label + " is required.");
+      }
+      if (data.reg_no && !isValidRegNo(data.reg_no)) {
+        errors.push("Registration number is invalid. Use the format SP23-BCS-009.");
       }
       if (data.url && !isValidUrl(data.url)) {
         errors.push("Submission URL is invalid. Use a full link like https://example.com/file.");
@@ -254,7 +260,7 @@
       fields.forEach(f => {
         const input = f.querySelector("input"), tip = f.querySelector(".tip");
         const v = input.value.trim();
-        const msg = !v ? "Required" : (input.name === "url" && !isValidUrl(v) ? "Needs http(s):// and a real domain" : "");
+        const msg = !v ? "Required" : (input.name === "url" && !isValidUrl(v) ? "Needs http(s):// and a real domain" : (input.name === "reg_no" && !isValidRegNo(v) ? "Use the format SP23-BCS-009" : ""));
         const show = !!input.dataset.touched;
         f.classList.toggle("done", !msg);
         f.classList.toggle("wrong", !!msg && show);
@@ -296,6 +302,7 @@
         liveCheck();
         return;
       }
+      data.reg_no = data.reg_no.toUpperCase();
       data.submitted_at = new Date().toISOString().slice(0, 16).replace("T", " ");
       const list = load(); list.push(data); store(list);
       location.href = "submissions.html?saved=1";

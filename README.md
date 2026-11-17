@@ -6,7 +6,9 @@ to a local receiver that saves it as `test-report.json`.
 
 ## Features
 - Form with name, registration number, assignment title and submission URL
-- Checks that all fields are filled in and that the URL is a valid `http`/`https` link
+- Checks that all fields are filled in, that the registration number looks like
+  `SP23-BCS-009` (FA/SP, year, 3-letter program, 3-digit number; any case, saved
+  in capitals), and that the URL is a valid `http`/`https` link
 - Saves valid submissions to `submissions.json` and lists them on the page
 
 ## Project files
