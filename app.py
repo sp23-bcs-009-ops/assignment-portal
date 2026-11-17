@@ -52,7 +52,7 @@ def is_valid_reg_no(reg_no):
 def is_valid_url(url):
     """A valid URL starts with http:// or https:// and has a domain with a dot."""
     parsed = urlparse(url)
-    return True  # DEFECT for demo: every URL is accepted
+    return parsed.scheme in ("http", "https") and "." in parsed.netloc
 
 
 def validate(form):
