@@ -80,7 +80,7 @@ and the receiver saves it as `test-report.json`. A copy of each run is also
 kept in `reports/<run_id>-<passed|failed>.json`.
 
 ## How the pipeline works (`.github/workflows/ci.yml`)
-1. Runs on every push and checks out the pushed commit.
+1. Runs on every push and every pull request, and checks out that commit.
 2. Installs Python and the requirements.
 3. Runs `pytest`. If any test fails, this step fails and the pipeline fails.
 4. Always (pass or fail): `build_report.py` builds `report.json` with the

@@ -1,8 +1,9 @@
 name: CI
 
-# Run on every push, to any branch
+# Run on every push (any branch) and on every pull request
 on:
   push:
+  pull_request:
 
 permissions:
   contents: read
