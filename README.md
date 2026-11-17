@@ -9,18 +9,19 @@ to a local receiver that saves it as `test-report.json`.
 - Checks that all fields are filled in, that the registration number looks like
   `SP23-BCS-009` (FA/SP, year, 3-letter program, 3-digit number; any case, saved
   in capitals), and that the URL is a valid `http`/`https` link
-- Saves valid submissions to `submissions.json` and lists them on the page
+- Saves valid submissions to `submissions.json` and lists them on the Saved Submissions page
 
 ## Project files
 | File | Purpose |
 |------|---------|
 | `app.py` | Flask web app (the portal) |
-| `templates/index.html` | Form and submissions list page |
+| `templates/index.html` | Submission form page (`/`) |
+| `templates/submissions.html` | Saved submissions list page (`/submissions`) |
 | `test_app.py` | Automated tests (pytest) |
 | `receiver.py` | Local HTTP server that receives the CI test report |
 | `build_report.py` | Builds the JSON test report in CI |
 | `send_email.py` | Emails the test report (bonus) |
-| `site/index.html` | Static demo published to GitHub Pages (bonus) |
+| `site/index.html`, `site/submissions.html` | Static demo published to GitHub Pages (bonus) |
 | `DEMO.md`, `evidence/` | Pass / fail / fix demonstration evidence |
 | `.github/workflows/ci.yml` | CI pipeline (GitHub Actions) |
 | `requirements.txt` | Python packages |
@@ -41,7 +42,8 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-Open http://localhost:5000 in a browser.
+Open http://localhost:5000 in a browser. Saved submissions are at
+http://localhost:5000/submissions.
 
 ## Run the tests
 ```bash
@@ -101,7 +103,7 @@ kept in `reports/<run_id>-<passed|failed>.json`.
 ## Bonus: GitHub Pages (conditional deployment)
 Live demo: https://sp23-bcs-009-ops.github.io/assignment-portal/
 
-`site/index.html` is a static version of the portal (same validation rules,
+`site/index.html` and `site/submissions.html` are a static version of the portal (same validation rules,
 submissions stored in the browser). The `deploy` job has `needs: test`, so a
 failing run skips deployment and the previously published version stays live.
 The page footer shows the commit it was deployed from.
