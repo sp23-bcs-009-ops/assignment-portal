@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Assignment Submission Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9,23 +10,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f3f1ea; --panel: #fffdf7; --ink: #15161a; --muted: #6b6a66; --line: #e2ddd0;
-      --accent: #ff5a1f; --accent-ink: #fff; --ok: #0f8a5f; --ok-bg: #e3f5ec; --bad: #c42b1c; --bad-bg: #fde9e6;
-      --grid: rgba(21,22,26,.05); --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(21,22,26,.35);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f1013; --panel: #17181d; --ink: #f1efe8; --muted: #9a9890; --line: #2a2b31;
-        --accent: #ff7a45; --accent-ink: #15161a; --ok: #3ccf91; --ok-bg: #11291f; --bad: #ff7b6b; --bad-bg: #2f1512;
-        --grid: rgba(255,255,255,.035); --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(0,0,0,.8);
-      }
+      color-scheme: dark;
+      --bg: #0b0c10; --panel: #14161c; --panel-2: #1a1d25; --field: #0f1116;
+      --ink: #eceae4; --muted: #8b8e99; --line: #262a34;
+      --accent: #ff6b35; --accent-2: #ffb36b; --accent-ink: #160b04;
+      --ok: #34d399; --ok-bg: rgba(52,211,153,.10); --bad: #ff6b6b; --bad-bg: rgba(255,107,107,.10);
+      --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 24px 48px -24px rgba(0,0,0,.9);
     }
     * { box-sizing: border-box; }
+    ::selection { background: var(--accent); color: var(--accent-ink); }
     body {
-      margin: 0; color: var(--ink); font: 16px/1.5 "Space Grotesk", system-ui, sans-serif;
-      background-color: var(--bg);
-      background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      margin: 0; min-height: 100vh; color: var(--ink); font: 16px/1.5 "Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(255,107,53,.16), transparent 60%),
+        radial-gradient(700px 380px at 100% 0%, rgba(110,130,255,.08), transparent 60%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
       background-size: 28px 28px;
+      -webkit-mask-image: radial-gradient(ellipse at top, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse at top, #000 20%, transparent 75%);
     }
     .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
     .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 16px 48px; }
@@ -79,16 +85,6 @@
     .success { background: var(--ok-bg); color: var(--ok); border-color: color-mix(in srgb, var(--ok) 35%, transparent); animation: pop .4s ease; }
     @keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
 
-    /* Stats side */
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .stat { padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); }
-    .stat b { display: block; font-size: 30px; line-height: 1; letter-spacing: -.03em; }
-    .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .stat.wide { grid-column: span 2; }
-    .stat.wide b { font-size: 16px; font-weight: 600; letter-spacing: 0; margin-top: 4px; }
-    .rules { margin: 18px 0 0; padding: 0; list-style: none; font-size: 14px; }
-    .rules li { display: flex; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--line); }
-    .rules li::before { content: "→"; color: var(--accent); font-weight: 700; }
 
     /* Submissions */
     .list-card { margin-top: 20px; }
@@ -120,6 +116,26 @@
     .navlink { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; }
     .navlink:hover { border-color: var(--accent); color: var(--accent); }
     .navlink b { color: var(--accent); }
+    /* Dark theme polish */
+    .logo { background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 8px 24px -8px rgba(255,107,53,.6); }
+    .chip { background: rgba(255,255,255,.03); }
+    .chip i { animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px transparent; opacity: .6; } }
+    .card { background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
+    .field.done .step { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 0 16px -4px rgba(255,107,53,.7); }
+    input { background: var(--field); }
+    input:hover { border-color: #353a47; }
+    input:focus { background: #11131a; }
+    button { background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 10px 24px -10px rgba(255,107,53,.75); }
+    button:hover { box-shadow: 0 14px 30px -10px rgba(255,107,53,.9); }
+    button:active { box-shadow: 0 6px 16px -8px rgba(255,107,53,.8); }
+    button.ghost:hover { color: var(--ink); border-color: var(--accent); box-shadow: none; }
+    .navlink { background: rgba(255,255,255,.03); }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
+    .tag { background: var(--panel-2); color: var(--accent-2); }
+    .progress-bar { height: 3px; border-radius: 3px; background: var(--line); margin: 12px 0 14px; overflow: hidden; }
+    .progress-bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
+    @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
@@ -127,7 +143,7 @@
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ff5a1f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#160b04" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
         </div>
         <div>
           <h1>Assignment Submission Portal</h1>
