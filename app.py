@@ -68,17 +68,18 @@ def index():
         if not errors:
             form["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
             save_submission(form)
-            return redirect(url_for("index", saved=1))
+            return redirect(url_for("submissions", saved=1))
     status = 400 if errors else 200
-    return (
-        render_template(
-            "index.html",
-            submissions=load_submissions(),
-            errors=errors,
-            form=form,
-            saved=request.args.get("saved"),
-        ),
-        status,
+    return render_template("index.html", errors=errors, form=form), status
+
+
+@app.route("/submissions")
+def submissions():
+    """List all saved submissions."""
+    return render_template(
+        "submissions.html",
+        submissions=load_submissions(),
+        saved=request.args.get("saved"),
     )
 
 

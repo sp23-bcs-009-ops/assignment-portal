@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment Submission Portal (Demo) — Submissions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f1ea; --panel: #fffdf7; --ink: #15161a; --muted: #6b6a66; --line: #e2ddd0;
+      --accent: #ff5a1f; --accent-ink: #fff; --ok: #0f8a5f; --ok-bg: #e3f5ec; --bad: #c42b1c; --bad-bg: #fde9e6;
+      --grid: rgba(21,22,26,.05); --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(21,22,26,.35);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1013; --panel: #17181d; --ink: #f1efe8; --muted: #9a9890; --line: #2a2b31;
+        --accent: #ff7a45; --accent-ink: #15161a; --ok: #3ccf91; --ok-bg: #11291f; --bad: #ff7b6b; --bad-bg: #2f1512;
+        --grid: rgba(255,255,255,.035); --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(0,0,0,.8);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--ink); font: 16px/1.5 "Space Grotesk", system-ui, sans-serif;
+      background-color: var(--bg);
+      background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 16px 48px; }
+
+    /* Header */
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo { width: 46px; height: 46px; border-radius: 12px; background: var(--ink); display: grid; place-items: center; flex: none; }
+    .logo svg { width: 26px; height: 26px; }
+    h1 { margin: 0; font-size: clamp(22px, 3.4vw, 30px); line-height: 1.1; letter-spacing: -.02em; }
+    .sub { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+    .chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); font-size: 12px; color: var(--muted); }
+    .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-bg); }
+
+    /* Layout */
+    .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 24px; }
+    .card h2 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.01em; }
+    .card .hint { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+
+    /* Form */
+    .field { position: relative; display: grid; grid-template-columns: 38px 1fr; gap: 0 12px; padding: 12px 0; border-top: 1px dashed var(--line); }
+    .field:first-of-type { border-top: 0; }
+    .step { grid-row: span 2; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; color: var(--muted); transition: .2s; }
+    .field.done .step { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+    .field.wrong .step { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+    label { font-weight: 600; font-size: 14px; }
+    input {
+      width: 100%; margin-top: 6px; padding: 11px 13px; font: inherit; color: var(--ink);
+      background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+    input::placeholder { color: var(--muted); opacity: .7; }
+    .tip { grid-column: 2; font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 18px; }
+    .field.wrong .tip { color: var(--bad); }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+    button {
+      display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; font: 600 15px "Space Grotesk", sans-serif;
+      color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 12px; cursor: pointer;
+      box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 60%, #000); transition: transform .1s, box-shadow .1s;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 60%, #000); }
+    .progress { font-size: 12px; color: var(--muted); }
+
+    /* Alerts */
+    .alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: 12px; margin-bottom: 18px; font-size: 14px; border: 1px solid; }
+    .alert ul { margin: 0; padding-left: 18px; }
+    .alert strong { display: block; margin-bottom: 2px; }
+    .error { background: var(--bad-bg); color: var(--bad); border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
+    .success { background: var(--ok-bg); color: var(--ok); border-color: color-mix(in srgb, var(--ok) 35%, transparent); animation: pop .4s ease; }
+    @keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* Stats side */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat { padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); }
+    .stat b { display: block; font-size: 30px; line-height: 1; letter-spacing: -.03em; }
+    .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .stat.wide { grid-column: span 2; }
+    .stat.wide b { font-size: 16px; font-weight: 600; letter-spacing: 0; margin-top: 4px; }
+    .rules { margin: 18px 0 0; padding: 0; list-style: none; font-size: 14px; }
+    .rules li { display: flex; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--line); }
+    .rules li::before { content: "→"; color: var(--accent); font-weight: 700; }
+
+    /* Submissions */
+    .list-card { margin-top: 20px; }
+    .list-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .search { max-width: 260px; margin: 0; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+    th { text-align: left; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); padding: 0 12px 10px; border-bottom: 1px solid var(--line); }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: var(--bg); }
+    .who { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; color: #15161a; }
+    .h0 { background: #ffb38a; } .h1 { background: #9fd8c4; } .h2 { background: #c9b8ff; } .h3 { background: #ffd66e; } .h4 { background: #9cc9ff; } .h5 { background: #f7a8c8; }
+    .tag { display: inline-block; padding: 3px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; }
+    td a { color: var(--accent); text-decoration: none; word-break: break-all; font-weight: 500; }
+    td a:hover { text-decoration: underline; }
+    .time { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .empty { text-align: center; padding: 36px 12px; color: var(--muted); }
+    .empty svg { width: 54px; height: 54px; opacity: .5; }
+    @media (max-width: 680px) {
+      table, tbody, tr, td { display: block; }
+      thead { display: none; }
+      tr { border: 1px solid var(--line); border-radius: 14px; padding: 6px 4px; margin-bottom: 10px; }
+      td { border: 0; padding: 6px 12px; }
+      td[data-k]::before { content: attr(data-k); display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+    }
+    footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: 13px; }
+    .hidden { display: none !important; }
+    .note { margin: -8px 0 20px; padding: 12px 16px; border-radius: 12px; border: 1px dashed var(--accent); background: var(--panel); font-size: 14px; }
+    button.ghost { background: transparent; color: var(--muted); box-shadow: none; border: 1px solid var(--line); margin-right: 8px; }
+    footer a { color: var(--accent); }
+    code { font-family: inherit; padding: 2px 6px; border-radius: 6px; background: var(--panel); border: 1px solid var(--line); }
+    .navlink { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px; }
+    .navlink:hover { border-color: var(--accent); color: var(--accent); }
+    .navlink b { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff5a1f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </div>
+        <div>
+          <h1>Assignment Submission Portal</h1>
+          <p class="sub">CSC418 · DevOps Lab — all saved submissions</p>
+        </div>
+      </div>
+      <a class="navlink" href="index.html"><b>←</b> New submission</a>
+    </header>
+
+    <div class="note">This static demo saves submissions in <b>this browser only</b> (localStorage). The full Flask version is in the repository.</div>
+
+    <section class="card list-card">
+      <div id="success" class="alert success hidden" role="status">
+        <div><strong>Submission saved successfully.</strong>Here it is in the list.</div>
+      </div>
+      <div class="list-head">
+        <div>
+          <h2>Saved Submissions (<span id="count">0</span>)</h2>
+          <p class="hint" style="margin:0">Newest first.</p>
+        </div>
+        <button type="button" class="ghost" id="clear">Clear all</button>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <footer class="mono">
+      Deployed commit <code>__COMMIT__</code> ·
+      <a href="https://github.com/sp23-bcs-009-ops/assignment-portal">GitHub repository</a>
+    </footer>
+  </div>
+
+  <script>
+    // Same rules as validate() in app.py
+    const FIELDS = { name: "Name", reg_no: "Registration number", title: "Assignment title", url: "Submission URL" };
+    const KEY = "submissions";
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+    }
+    function store(list) {
+      try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+    }
+    function isValidUrl(value) {
+      try {
+        const u = new URL(value);
+        return (u.protocol === "http:" || u.protocol === "https:") && u.hostname.includes(".");
+      } catch (e) { return false; }
+    }
+    function validate(data) {
+      const errors = [];
+      for (const [field, label] of Object.entries(FIELDS)) {
+        if (!data[field]) errors.push(label + " is required.");
+      }
+      if (data.url && !isValidUrl(data.url)) {
+        errors.push("Submission URL is invalid. Use a full link like https://example.com/file.");
+      }
+      return errors;
+    }
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+    function render() {
+      const box = document.getElementById("list");
+      if (!box) return;  // only on submissions.html
+      const list = load();
+      document.getElementById("count").textContent = list.length;
+
+      box.innerHTML = "";
+      if (!list.length) {
+        box.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16v12H4zM4 7l2-3h12l2 3M9 12h6"/></svg><p>No submissions yet.</p></div>';
+        return;
+      }
+      const table = el("table");
+      table.id = "submissions";
+      table.innerHTML = "<thead><tr><th>Name</th><th>Reg No</th><th>Title</th><th>URL</th><th>Time</th></tr></thead>";
+      const tbody = el("tbody");
+      for (const s of list.slice().reverse()) {
+        const tr = el("tr");
+        const tdName = el("td"); tdName.dataset.k = "Name";
+        const who = el("span", "who");
+        who.appendChild(el("span", "av h" + ((s.reg_no.length + s.name.length) % 6), s.name.charAt(0).toUpperCase()));
+        who.appendChild(document.createTextNode(s.name));
+        tdName.appendChild(who);
+        const tdReg = el("td"); tdReg.dataset.k = "Reg No"; tdReg.appendChild(el("span", "tag mono", s.reg_no));
+        const tdTitle = el("td", "", s.title); tdTitle.dataset.k = "Title";
+        const tdUrl = el("td"); tdUrl.dataset.k = "URL";
+        const a = el("a", "", s.url); a.href = s.url; a.target = "_blank"; a.rel = "noopener";
+        tdUrl.appendChild(a);
+        const tdTime = el("td", "time mono", s.submitted_at); tdTime.dataset.k = "Time";
+        [tdName, tdReg, tdTitle, tdUrl, tdTime].forEach(td => tr.appendChild(td));
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      box.appendChild(table);
+      filter();
+    }
+
+    // Live step indicators
+    const fields = document.querySelectorAll(".field");
+    function liveCheck() {
+      let done = 0;
+      fields.forEach(f => {
+        const input = f.querySelector("input"), tip = f.querySelector(".tip");
+        const v = input.value.trim();
+        const msg = !v ? "Required" : (input.name === "url" && !isValidUrl(v) ? "Needs http(s):// and a real domain" : "");
+        const show = !!input.dataset.touched;
+        f.classList.toggle("done", !msg);
+        f.classList.toggle("wrong", !!msg && show);
+        tip.textContent = show && msg ? msg : "";
+        if (!msg) done++;
+      });
+      if (fields.length) document.getElementById("progress").textContent = done + " / 4 steps complete";
+    }
+    fields.forEach(f => {
+      const input = f.querySelector("input");
+      input.addEventListener("input", () => { input.dataset.touched = 1; liveCheck(); });
+      input.addEventListener("blur", () => { input.dataset.touched = 1; liveCheck(); });
+    });
+
+    function filter() {
+      const search = document.getElementById("search");
+      if (!search) return;
+      const q = search.value.toLowerCase();
+      document.querySelectorAll("#submissions tbody tr").forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    }
+    const searchBox = document.getElementById("search");
+    if (searchBox) searchBox.addEventListener("input", filter);
+
+    const formEl = document.getElementById("form");
+    if (formEl) formEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = {};
+      for (const field of Object.keys(FIELDS)) data[field] = document.getElementById(field).value.trim();
+      const errors = validate(data);
+      const errBox = document.getElementById("errors");
+      if (errors.length) {
+        errBox.innerHTML = "<div><strong>Could not save — please fix:</strong><ul></ul></div>";
+        const ul = errBox.querySelector("ul");
+        errors.forEach(m => ul.appendChild(el("li", "", m)));
+        errBox.classList.remove("hidden");
+        fields.forEach(f => f.querySelector("input").dataset.touched = 1);
+        liveCheck();
+        return;
+      }
+      data.submitted_at = new Date().toISOString().slice(0, 16).replace("T", " ");
+      const list = load(); list.push(data); store(list);
+      location.href = "submissions.html?saved=1";
+    });
+
+    const clearBtn = document.getElementById("clear");
+    if (clearBtn) clearBtn.addEventListener("click", () => { store([]); render(); });
+    const okBox = document.getElementById("success");
+    if (okBox && new URLSearchParams(location.search).has("saved")) okBox.classList.remove("hidden");
+    liveCheck();
+    render();
+  </script>
+</body>
+</html>
