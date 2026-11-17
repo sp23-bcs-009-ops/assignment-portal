@@ -35,6 +35,25 @@ jobs:
           python build_report.py junit.xml report.json
           cat report.json
 
+      # Shows a table of every test's result on the run's summary page.
+      - name: Show test results on the run page
+        if: always()
+        run: |
+          python - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import json
+          r = json.load(open("report.json"))
+          s = r["summary"]
+          icon = "✅" if r["status"] == "passed" else "❌"
+          print(f"## {icon} Tests {r['status'].upper()}: {s['passed']}/{s['total']} passed, {s['failed']} failed")
+          print(f"Commit `{r['commit_sha'][:7]}` on `{r['branch']}` — run {r['run_id']}\n")
+          print("| # | Test | Result | Failure message |")
+          print("|---|------|--------|-----------------|")
+          for i, t in enumerate(r["tests"], 1):
+              mark = "✅ passed" if t["result"] == "passed" else "❌ " + t["result"]
+              msg = (t.get("failure_message") or "").replace("|", "\\|").replace("\n", " ")[:120]
+              print(f"| {i} | `{t['name']}` | {mark} | {msg} |")
+          EOF
+
       - name: Send report to local receiver
         if: always()
         env:

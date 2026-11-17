@@ -67,6 +67,13 @@ through a Cloudflare tunnel.
    cloudflared tunnel --url http://localhost:8000
    ```
    Copy the `https://....trycloudflare.com` link it prints.
+
+   If cloudflared cannot start a tunnel, use localhost.run instead (needs only
+   SSH, which is built into Windows 10/11):
+   ```bash
+   ssh -R 80:127.0.0.1:8000 nokey@localhost.run
+   ```
+   Copy the `https://....lhr.life` link it prints.
 4. Save the link and token as GitHub repository secrets:
    ```bash
    gh secret set RECEIVER_URL --body "https://....trycloudflare.com"
