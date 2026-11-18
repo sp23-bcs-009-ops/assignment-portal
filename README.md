@@ -22,7 +22,6 @@ to a local receiver that saves it as `test-report.json`.
 | `build_report.py` | Builds the JSON test report in CI |
 | `send_email.py` | Emails the test report (bonus) |
 | `site/index.html`, `site/submissions.html` | Static demo published to GitHub Pages (bonus) |
-| `DEMO.md`, `evidence/` | Pass / fail / fix demonstration evidence |
 | `.github/workflows/ci.yml` | CI pipeline (GitHub Actions) |
 | `requirements.txt` | Python packages |
 
